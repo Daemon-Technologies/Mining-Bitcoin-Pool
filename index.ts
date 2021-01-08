@@ -1,10 +1,14 @@
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import { SuperResult } from './src/data';
-import { getNodeList } from './src/nodeList';
+import { addNode, getNodeList } from './src/nodeList';
+import 'reflect-metadata';
+import { createConnection } from "typeorm";
+import * as path from 'path';
+import { BTCNodeInfo } from './src/BTCNodeInfo';
 
 const app = express();
-const port = 8888;
+const port = 28888;
 
 app.use(bodyParser.json());
 
@@ -25,9 +29,9 @@ app.get('/', (_, res) => {
     res.send(result);
 });
 
-app.post('/nodeList', (req, res) => {
+app.post('/nodeList', async (req, res) => {
     if (req.body) {
-        const nodeListRes = getNodeList(req.body);
+        const nodeListRes = await getNodeList(req.body);
         res.send(nodeListRes);
     } else {
         const result: SuperResult = { status: 500, message: 'param error' };
@@ -35,6 +39,29 @@ app.post('/nodeList', (req, res) => {
     }
 });
 
+app.post('/addNode', (req, res) => {
+    if (req.body) {
+        const addRes = addNode(req.body);
+        res.send(addRes);
+    } else {
+        const result: SuperResult = { status: 500, message: 'param error' };
+        res.send(result);
+    }
+})
+
 app.listen(port, () => {
     console.log(`Node-List app listening at http://localhost:${port}`);
 });
+
+createConnection({
+    type: 'sqlite',
+    database: path.resolve(__dirname, './pool.sqlite'),
+    entities: [
+        BTCNodeInfo
+    ],
+    synchronize: true,
+}).then(async connection => {
+    console.log('连接成功')
+}).catch(err => {
+    console.log('连接失败', err)
+})
