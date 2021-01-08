@@ -7,7 +7,7 @@ import type { ProColumns, ActionType } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
 import { ModalForm, ProFormText } from '@ant-design/pro-form';
 import { NodeInfo } from './data';
-import { addNodeInfo, queryNodeList } from './service';
+import { addNodeInfo, getNodeBlockInfo, queryNodeList } from './service';
 import { useForm } from 'antd/lib/form/Form';
 
 /**
@@ -80,13 +80,7 @@ const TableList: React.FC = () => {
         // });
         const auth = 'Basic ' + btoa('daemontech:daemontech');
         const url = 'http://8.210.73.117:18332';
-        const res = await request(url, {
-          method: 'POST',
-          headers: {
-            Authorization: auth,
-          },
-          data: reqData,
-        });
+        const res = await getNodeBlockInfo(url, auth);
         console.log('res:', res)
         return (
           <>
