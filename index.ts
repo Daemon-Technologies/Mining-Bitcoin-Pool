@@ -1,7 +1,7 @@
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import { SuperResult } from './src/data';
-import { addNode, getNodeList } from './src/nodeList';
+import { addNode, getBlockchainInfo, getNodeList } from './src/nodeList';
 import 'reflect-metadata';
 import { createConnection } from "typeorm";
 import * as path from 'path';
@@ -43,6 +43,16 @@ app.post('/addNode', (req, res) => {
     if (req.body) {
         const addRes = addNode(req.body);
         res.send(addRes);
+    } else {
+        const result: SuperResult = { status: 500, message: 'param error' };
+        res.send(result);
+    }
+});
+
+app.post('/getBlockchainInfo', async (req, res) => {
+    if (req.body) {
+        const blockchainInfo = await getBlockchainInfo(req.body);
+        res.send(blockchainInfo);
     } else {
         const result: SuperResult = { status: 500, message: 'param error' };
         res.send(result);

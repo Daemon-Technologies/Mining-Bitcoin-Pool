@@ -17,19 +17,9 @@ export async function addNodeInfo(params: NodeInfo) {
   })
 }
 
-export async function getNodeBlockInfo(url: string, auth: string) {
-  const reqData = {
-    id: 'stacks',
-    jsonrpc: '2.0',
-    method: 'getblockchaininfo',
-  };
-  return await request(url, {
+export async function getNodeBlockInfo(url: string) {
+  return request('http://localhost:28888/getBlockchainInfo', {
     method: 'POST',
-    headers: {
-      Authorization: auth,
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*',
-    },
-    data: reqData,
+    data: { url },
   });
 }

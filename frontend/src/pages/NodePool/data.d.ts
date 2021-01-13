@@ -4,4 +4,6 @@ export type NodeInfo = {
   password: string;
   rpcPort: number;
   peerPort: number;
+  blocks: number;
+  verificationprogress: string;
 };

@@ -1,7 +1,7 @@
 import { PlusOutlined } from '@ant-design/icons';
-import { Button, message, Input, Form, Badge } from 'antd';
+import { Button, message, Input, Form } from 'antd';
 import React, { useState, useRef } from 'react';
-import { FormattedMessage, request } from 'umi';
+import { FormattedMessage } from 'umi';
 import { PageContainer } from '@ant-design/pro-layout';
 import type { ProColumns, ActionType } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
@@ -60,36 +60,23 @@ const TableList: React.FC = () => {
       dataIndex: 'peerPort',
     },
     {
-      title: 'Status',
-      dataIndex: 'status',
-      render: async (_, record) => {
-        const reqData = {
-          id: "stacks",
-          jsonrpc: '2.0',
-          method: 'getblockchaininfo',
-          params: [],
-        };
-        // const auth = 'Basic' + btoa(record.username + ':' + record.password);
-        // const url = 'http://' + record.peerHost + ':' + record.rpcPort;
-        // const res = await request(url, {
-        //   method: 'POST',
-        //   headers: {
-        //     Authorization: auth,
-        //   },
-        //   data: reqData,
-        // });
-        const auth = 'Basic ' + btoa('daemontech:daemontech');
-        const url = 'http://8.210.73.117:18332';
-        const res = await getNodeBlockInfo(url, auth);
-        console.log('res:', res)
+      title: 'Height',
+      dataIndex: 'blocks',
+    },
+    {
+      title: 'Verification Progress',
+      dataIndex: 'verificationprogress',
+    },
+    {
+      title: 'Operation',
+      render: () => {
         return (
           <>
-            <Badge color='green' text='Running' />
-            <Badge color='red' text='Lost' />
+            <Button type='primary'>Import Address</Button>
           </>
-        )
+        );
       }
-    },
+    }
   ];
 
   return (
@@ -110,7 +97,31 @@ const TableList: React.FC = () => {
             <PlusOutlined /> <FormattedMessage id="pages.searchTable.new" defaultMessage="新建" />
           </Button>,
         ]}
-        request={() => queryNodeList()}
+        request={async () => {
+          const nodeList = await queryNodeList();
+          let nodeInfoList: NodeInfo[] = [];
+          if (nodeList.status === 200) {
+            const records = nodeList.data;
+            for (var i = 0; i < records.length; i++) {
+              const record = records[i];
+              const url = 'http://' + record.username + ':' + record.password + '@' + record.peerHost + ':' + record.rpcPort;
+              // const url = 'http://daemontech:daemontech@8.210.73.117:18332';
+              const nodeBlockInfo = await getNodeBlockInfo(url);
+              if (nodeBlockInfo.status === 200) {
+                const blockInfo = nodeBlockInfo.data;
+                nodeInfoList.push({
+                  ...record,
+                  ...blockInfo,
+                })
+              } else {
+                nodeInfoList.push({
+                  ...record,
+                })
+              }
+            }
+          }
+          return { data: nodeInfoList };
+        }}
         columns={columns}
       />
       <ModalForm
