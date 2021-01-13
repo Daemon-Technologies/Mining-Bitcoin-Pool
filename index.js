@@ -1,7 +1,8 @@
-import * as express from 'express';
-import * as bodyParser from 'body-parser';
-import { SuperResult } from './src/data';
-import { getNodeList } from './src/nodeList';
+import express from 'express';
+
+import bodyParser from "body-parser"
+import { getNodeList } from './src/nodeList.js';
+import { getBlockchainInfo } from './src/bitcoinRpc.js'
 
 const app = express();
 const port = 8888;
@@ -21,8 +22,12 @@ app.all("*", function (req, res, next) {
 });
 
 app.get('/', (_, res) => {
-    let result: SuperResult = { status: 200, data: "node-list server is online" }
+    let result = { status: 200, data: "node-list server is online" }
     res.send(result);
+});
+
+app.get('/getblockchaininfo', (_, res) => {
+    getBlockchainInfo()
 });
 
 app.post('/nodeList', (req, res) => {
@@ -30,7 +35,7 @@ app.post('/nodeList', (req, res) => {
         const nodeListRes = getNodeList(req.body);
         res.send(nodeListRes);
     } else {
-        const result: SuperResult = { status: 500, message: 'param error' };
+        const result = { status: 500, message: 'param error' };
         res.send(result);
     }
 });

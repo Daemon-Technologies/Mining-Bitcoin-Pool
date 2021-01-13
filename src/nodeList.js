@@ -1,6 +1,6 @@
-import { NodeInfo, SuperResult } from "./data";
 
-const officialNode: NodeInfo = {
+
+const officialNode = {
     peerHost: 'bitcoind.xenon.blockstack.org',
     username: 'blockstack',
     password: 'blockstacksystem',
@@ -8,12 +8,12 @@ const officialNode: NodeInfo = {
     peerPort: 18333,
 };
 
-export function getNodeList(data: { network: string }): SuperResult {
+export function getNodeList(data){
     const { network } = data;
-    let result: SuperResult = { status: 200 }
+    let result= { status: 200 }
     switch (network) {
         case 'Xenon': {
-            const nodeInfo: NodeInfo[] = [officialNode];
+            const nodeInfo = [officialNode];
             result.data = nodeInfo;
             break;
         }
