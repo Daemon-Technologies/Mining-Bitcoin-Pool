@@ -7,7 +7,7 @@ import type { ProColumns, ActionType } from '@ant-design/pro-table';
 import ProTable from '@ant-design/pro-table';
 import { ModalForm, ProFormText } from '@ant-design/pro-form';
 import { NodeInfo } from './data';
-import { addNodeInfo, getNodeBlockInfo, queryNodeList } from './service';
+import { addNodeInfo, getNodeBlockInfo, importAddress, queryNodeList } from './service';
 import { useForm } from 'antd/lib/form/Form';
 
 /**
@@ -28,10 +28,27 @@ const handleAdd = async (fields: NodeInfo) => {
   }
 };
 
+const handleImportAddress = async (url: string, fields: { btcAddress: string }) => {
+  const hide = message.loading('Importing address....');
+  try {
+    await importAddress({ url: url, btcAddress: fields.btcAddress });
+    hide();
+    message.success('Import Successfully');
+    return true;
+  } catch (error) {
+    hide();
+    message.error('Import address fail!');
+    return false;
+  }
+}
+
 const TableList: React.FC = () => {
 
   const [createModalVisible, handleModalVisible] = useState<boolean>(false);
+  const [importModalVisible, handleImportModalVisible] = useState<boolean>(false);
+  const [importNodeInfo, updateImportNodeInfo] = useState<NodeInfo>();
   const [form] = useForm();
+  const [importForm] = useForm();
 
   const actionRef = useRef<ActionType>();
 
@@ -69,10 +86,13 @@ const TableList: React.FC = () => {
     },
     {
       title: 'Operation',
-      render: () => {
+      render: (_, record) => {
         return (
           <>
-            <Button type='primary'>Import Address</Button>
+            <Button onClick={() => {
+              handleImportModalVisible(true);
+              updateImportNodeInfo(record);
+            }} type='primary'>Import Address</Button>
           </>
         );
       }
@@ -188,6 +208,39 @@ const TableList: React.FC = () => {
         >
           <Input type='number' />
         </Form.Item>
+      </ModalForm>
+
+      <ModalForm
+        title='Import BTC Address'
+        width="500px"
+        form={importForm}
+        visible={importModalVisible}
+        onVisibleChange={(value) => {
+          handleImportModalVisible(value)
+          form.resetFields();
+        }}
+        onFinish={async (value) => {
+          const url = 'http://' + importNodeInfo?.username + ':' + importNodeInfo?.password + '@' + importNodeInfo?.peerHost + ':' + importNodeInfo?.rpcPort;
+          const success = await handleImportAddress(url, value as { btcAddress: string });
+          if (success) {
+            handleModalVisible(false);
+            form.resetFields();
+            if (actionRef.current) {
+              actionRef.current.reload();
+            }
+          }
+        }}
+      >
+        <ProFormText
+          rules={[
+            {
+              required: true,
+              message: 'BTC Address is required',
+            },
+          ]}
+          name="btcAddress"
+          label="BTC Address"
+        />
       </ModalForm>
     </PageContainer>
   );

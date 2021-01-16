@@ -23,3 +23,13 @@ export async function getNodeBlockInfo(url: string) {
     data: { url },
   });
 }
+
+export async function importAddress(data: { url: string, btcAddress: string }) {
+  return request('http://localhost:28888/importAddress', {
+    method: 'POST',
+    data: {
+      url: data.url,
+      btcAddress: data.btcAddress,
+    }
+  })
+}

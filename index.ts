@@ -1,11 +1,12 @@
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import { SuperResult } from './src/data';
-import { addNode, getBlockchainInfo, getNodeList } from './src/nodeList';
+import { addNode, getNodeList } from './src/nodeList';
 import 'reflect-metadata';
 import { createConnection } from "typeorm";
 import * as path from 'path';
 import { BTCNodeInfo } from './src/BTCNodeInfo';
+import { getBlockchainInfo, importaddressRPC } from './src/BTCRpc';
 
 const app = express();
 const port = 28888;
@@ -53,6 +54,16 @@ app.post('/getBlockchainInfo', async (req, res) => {
     if (req.body) {
         const blockchainInfo = await getBlockchainInfo(req.body);
         res.send(blockchainInfo);
+    } else {
+        const result: SuperResult = { status: 500, message: 'param error' };
+        res.send(result);
+    }
+})
+
+app.post('/importAddress', async (req, res) => {
+    if (req.body) {
+        const importAddressRes = await importaddressRPC(req.body);
+        res.send(importAddressRes);
     } else {
         const result: SuperResult = { status: 500, message: 'param error' };
         res.send(result);
