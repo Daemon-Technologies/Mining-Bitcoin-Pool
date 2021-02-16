@@ -5,6 +5,10 @@ export class BTCNodeInfo {
     @PrimaryGeneratedColumn()
     id: number;
     @Column({
+        type: 'int'
+    })
+    network: number;
+    @Column({
         length: 30,
         type: 'varchar'
     })

@@ -2,11 +2,8 @@ import request from 'umi-request';
 import { NodeInfo } from './data';
 
 export async function queryNodeList() {
-  return request('http://localhost:28888/nodeList', {
-    method: 'POST',
-    data: {
-      network: 'Xenon',
-    }
+  return request('http://localhost:28888/allNode', {
+    method: 'GET',
   });
 }
 

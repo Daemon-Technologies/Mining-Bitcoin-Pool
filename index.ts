@@ -1,7 +1,7 @@
 import * as express from 'express';
 import * as bodyParser from 'body-parser';
 import { SuperResult } from './src/data';
-import { addNode, getNodeList } from './src/nodeList';
+import { addNode, deleteNode, getAllNodeInfo, getNodeList } from './src/nodeList';
 import 'reflect-metadata';
 import { createConnection } from "typeorm";
 import * as path from 'path';
@@ -9,6 +9,7 @@ import { BTCNodeInfo } from './src/BTCNodeInfo';
 import { getBlockchainInfo, importaddressRPC } from './src/BTCRpc';
 
 const app = express();
+const clientApp = express();
 const port = 28888;
 
 app.use(bodyParser.json());
@@ -40,6 +41,11 @@ app.post('/nodeList', async (req, res) => {
     }
 });
 
+app.get('/allNode', async (_, res) => {
+    const nodeListRes = await getAllNodeInfo();
+    res.send(nodeListRes);
+});
+
 app.post('/addNode', (req, res) => {
     if (req.body) {
         const addRes = addNode(req.body);
@@ -49,6 +55,16 @@ app.post('/addNode', (req, res) => {
         res.send(result);
     }
 });
+
+app.post('/deleteNode', async (req, res) => {
+    if (req.body) {
+        const delRes = await deleteNode(req.body);
+        res.send(delRes);
+    } else {
+        const result: SuperResult = { status: 500, message: 'param error' };
+        res.send(result);
+    }
+})
 
 app.post('/getBlockchainInfo', async (req, res) => {
     if (req.body) {
@@ -72,6 +88,28 @@ app.post('/importAddress', async (req, res) => {
 
 app.listen(port, () => {
     console.log(`Node-List app listening at http://localhost:${port}`);
+});
+
+clientApp.all("*", function (req, res, next) {
+    res.header("Access-Control-Allow-Origin", req.headers.origin || '*');
+    res.header("Access-Control-Allow-Headers", "Content-Type, Authorization, X-Requested-With");
+    res.header("Access-Control-Allow-Methods", "PUT,POST,GET,DELETE,OPTIONS");
+    res.header("Access-Control-Allow-Credentials", "true");
+    if (req.method == 'OPTIONS') {
+        res.sendStatus(200);
+    } else {
+        next();
+    }
+});
+
+clientApp.listen(8000, () => {
+    console.log(`Bitcoin-Pool Client listening at http://localhost:8000`)
+});
+
+clientApp.use(express.static('dist'));
+
+clientApp.get('/*', function (req, res) {
+    res.sendFile('dist/index.html', { root: '.' });
 });
 
 createConnection({

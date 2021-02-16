@@ -1,5 +1,5 @@
 import { PlusOutlined } from '@ant-design/icons';
-import { Button, message, Input, Form } from 'antd';
+import { Button, message, Input, Form, Select } from 'antd';
 import React, { useState, useRef } from 'react';
 import { FormattedMessage } from 'umi';
 import { PageContainer } from '@ant-design/pro-layout';
@@ -53,6 +53,14 @@ const TableList: React.FC = () => {
   const actionRef = useRef<ActionType>();
 
   const columns: ProColumns<NodeInfo>[] = [
+    {
+      title: 'Network',
+      dataIndex: 'network',
+      valueEnum: {
+        0: 'Mainnet',
+        1: 'Testnet',
+      }
+    },
     {
       title: 'Peer Host',
       dataIndex: 'peerHost',
@@ -208,6 +216,16 @@ const TableList: React.FC = () => {
         >
           <Input type='number' />
         </Form.Item>
+        <Form.Item
+          required={true}
+          name="network"
+          label={'Network'}
+        >
+          <Select>
+            <Select.Option value={0}>Mainnet</Select.Option>
+            <Select.Option value={1}>Testnet</Select.Option>
+          </Select>
+        </Form.Item>
       </ModalForm>
 
       <ModalForm
@@ -229,6 +247,7 @@ const TableList: React.FC = () => {
               actionRef.current.reload();
             }
           }
+          form.resetFields();
         }}
       >
         <ProFormText

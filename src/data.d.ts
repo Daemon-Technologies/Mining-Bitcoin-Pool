@@ -5,6 +5,7 @@ export interface SuperResult {
 }
 
 export interface NodeInfo {
+    network: number;
     peerHost: string;
     username: string;
     password: string;
